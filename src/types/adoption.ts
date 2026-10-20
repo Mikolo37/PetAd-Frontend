@@ -53,6 +53,7 @@ export interface CustodyDetails {
   ownerId: string;
   startDate: string;
   endDate?: string;
+  escrowId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

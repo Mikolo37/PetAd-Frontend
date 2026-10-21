@@ -21,6 +21,9 @@ const arrangements: CustodyArrangement[] = [
     notes: null,
     escrowStatus: "FUNDED",
     escrowId: "escrow-001",
+    petName: "Buddy",
+    ownerName: "Sam Smith",
+    caretakerName: "Alex Doe",
   },
   {
     id: "custody-2",
@@ -33,6 +36,9 @@ const arrangements: CustodyArrangement[] = [
     notes: "Travelling for work",
     escrowStatus: null,
     escrowId: null,
+    petName: "Luna",
+    ownerName: "Alex Doe",
+    caretakerName: "Robin Fox",
   },
   {
     id: "custody-3",
@@ -45,6 +51,9 @@ const arrangements: CustodyArrangement[] = [
     notes: null,
     escrowStatus: "RELEASED",
     escrowId: "escrow-003",
+    petName: "Milo",
+    ownerName: "Alex Doe",
+    caretakerName: "Jamie Ray",
   },
 ];
 
@@ -99,13 +108,19 @@ export const custodyHandlers = [
   http.get("*/api/custody", async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
-    const status = url.searchParams.get("status") as CustodyStatus | null;
+    // The status filter accepts a single status or a comma-separated list.
+    const statuses = (url.searchParams.get("status") ?? "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) as CustodyStatus[];
     const petId = url.searchParams.get("petId");
     const page = Number(url.searchParams.get("page") ?? 1);
     const limit = Number(url.searchParams.get("limit") ?? DEFAULT_PAGE_SIZE);
 
     const filtered = arrangements.filter((arrangement) => {
-      if (status && arrangement.status !== status) return false;
+      if (statuses.length > 0 && !statuses.includes(arrangement.status)) {
+        return false;
+      }
       if (petId && arrangement.petId !== petId) return false;
       return true;
     });

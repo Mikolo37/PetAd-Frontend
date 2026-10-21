@@ -73,6 +73,9 @@ export const custodyArrangementSchema = z.object({
   notes: z.string().nullable(),
   escrowStatus: custodyEscrowStatusSchema.nullable(),
   escrowId: z.string().nullable().optional(),
+  petName: z.string().nullable().optional(),
+  ownerName: z.string().nullable().optional(),
+  caretakerName: z.string().nullable().optional(),
 }) satisfies z.ZodType<CustodyArrangement>;
 
 /**

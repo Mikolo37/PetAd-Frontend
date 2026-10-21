@@ -39,6 +39,9 @@ const ModalPreview = lazy(() => import("./pages/ModalPreview"));
 const StatusPollingDemo = lazy(() => import("./pages/StatusPollingDemo"));
 const CustodyTimelinePage = lazy(() => import("./pages/CustodyTimelinePage"));
 const CustodyRequestPage = lazy(() => import("./pages/CustodyRequestPage"));
+const CustodyDashboardPage = lazy(() =>
+  import("./pages/CustodyDashboardPage"),
+);
 const AdminApprovalQueuePage = lazy(() => import("./pages/AdminApprovalQueuePage"));
 const AdminDisputeListPage = lazy(() => import("./pages/AdminDisputeListPage"));
 const DisputeDetailPage = lazy(() => import("./pages/DisputeDetailPage"));
@@ -130,6 +133,7 @@ function App() {
               path="/pets/:petId/custody/new"
               element={<CustodyRequestPage />}
             />
+            <Route path="/custody" element={<CustodyDashboardPage />} />
             <Route path="/preview-modal" element={<ModalPreview />} />
             <Route
               path="/adoption-completion-demo"

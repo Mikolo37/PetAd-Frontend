@@ -22,7 +22,12 @@ export interface CustodyTimelineEvent {
 }
 
 export interface CustodyListParams {
-  status?: CustodyStatus;
+  /**
+   * Status filter. A single status (`"active"`) or a list of statuses
+   * (`["requested", "approved"]`), which is serialised as a comma-separated
+   * value so the dashboard can ask for a whole bucket in one request.
+   */
+  status?: CustodyStatus | CustodyStatus[];
   petId?: string;
   page?: number;
   limit?: number;
@@ -73,7 +78,12 @@ async function withCustodyErrors<T>(request: () => Promise<T>): Promise<T> {
 
 function buildListQuery(params: CustodyListParams): string {
   const searchParams = new URLSearchParams();
-  if (params.status) searchParams.append("status", params.status);
+  if (params.status) {
+    searchParams.append(
+      "status",
+      Array.isArray(params.status) ? params.status.join(",") : params.status,
+    );
+  }
   if (params.petId) searchParams.append("petId", params.petId);
   if (params.page !== undefined) searchParams.append("page", String(params.page));
   if (params.limit !== undefined) searchParams.append("limit", String(params.limit));

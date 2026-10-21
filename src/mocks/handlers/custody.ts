@@ -1,5 +1,6 @@
 import { http, HttpResponse, delay } from "msw";
 import type { CustodyArrangement, CustodyStatus } from "../../features/custody/types";
+import { eachDate } from "../../lib/dateOnly";
 
 /**
  * In-memory store of custody arrangements.
@@ -71,6 +72,29 @@ function findArrangement(id: string): CustodyArrangement | undefined {
 }
 
 export const custodyHandlers = [
+  // GET /api/custody/availability — the days a pet is already booked for.
+  //
+  // Registered before the `:id` route so that the literal path wins over the
+  // parameterised one.
+  http.get("*/api/custody/availability", async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const petId = url.searchParams.get("petId");
+
+    const booked = arrangements.filter(
+      (arrangement) =>
+        arrangement.petId === petId &&
+        arrangement.status !== "cancelled" &&
+        arrangement.status !== "completed",
+    );
+
+    const unavailableDates = booked.flatMap((arrangement) =>
+      eachDate(arrangement.startDate, arrangement.endDate),
+    );
+
+    return HttpResponse.json({ unavailableDates: [...new Set(unavailableDates)] });
+  }),
+
   // GET /api/custody — paginated list of custody arrangements.
   http.get("*/api/custody", async ({ request }) => {
     await delay(100);

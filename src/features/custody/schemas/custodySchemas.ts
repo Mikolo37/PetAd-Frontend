@@ -16,6 +16,9 @@ export const MAX_CUSTODY_DURATION_DAYS = 90;
 /** Maximum length of the free-text notes on a custody request. */
 export const MAX_CUSTODY_NOTES_LENGTH = 500;
 
+/** Maximum length of the emergency contact on a custody request. */
+export const MAX_CUSTODY_EMERGENCY_CONTACT_LENGTH = 120;
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const CUSTODY_VALIDATION_MESSAGES = {
@@ -24,6 +27,7 @@ export const CUSTODY_VALIDATION_MESSAGES = {
   endBeforeStart: "End date must be after the start date",
   tooLong: `Custody cannot be longer than ${MAX_CUSTODY_DURATION_DAYS} days`,
   notesTooLong: `Notes must be ${MAX_CUSTODY_NOTES_LENGTH} characters or fewer`,
+  emergencyContactTooLong: `Emergency contact must be ${MAX_CUSTODY_EMERGENCY_CONTACT_LENGTH} characters or fewer`,
 } as const;
 
 function isValidDateString(value: string): boolean {
@@ -89,6 +93,13 @@ export const custodyRequestSchema = z
       .string()
       .max(MAX_CUSTODY_NOTES_LENGTH, CUSTODY_VALIDATION_MESSAGES.notesTooLong)
       .optional(),
+    emergencyContact: z
+      .string()
+      .max(
+        MAX_CUSTODY_EMERGENCY_CONTACT_LENGTH,
+        CUSTODY_VALIDATION_MESSAGES.emergencyContactTooLong,
+      )
+      .optional(),
   })
   .superRefine((value, ctx) => {
     if (!isValidDateString(value.startDate) || !isValidDateString(value.endDate)) {
@@ -140,3 +151,15 @@ export const custodyListResponseSchema = z.object({
 });
 
 export type CustodyListResponse = z.infer<typeof custodyListResponseSchema>;
+
+/**
+ * Days the API reported as unavailable for a pet.
+ *
+ * The dates are date-only strings so the client never has to re-interpret
+ * them in a different time zone.
+ */
+export const custodyAvailabilitySchema = z.object({
+  unavailableDates: z.array(isoDateStringSchema),
+});
+
+export type CustodyAvailability = z.infer<typeof custodyAvailabilitySchema>;

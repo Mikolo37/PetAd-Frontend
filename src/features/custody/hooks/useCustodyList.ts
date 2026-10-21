@@ -34,6 +34,14 @@ export const custodyKeys = {
   list: (params: CustodyListParams = {}) => ["custody", params] as const,
   /** Detail key: `["custody-detail", custodyId]`. */
   detail: (custodyId: string) => ["custody-detail", custodyId] as const,
+  /**
+   * Availability key: `["custody", "availability", petId]`.
+   *
+   * The days a pet cannot be booked for change whenever an arrangement
+   * changes, so the entry deliberately lives under the list root and is
+   * refreshed by the same invalidation.
+   */
+  availability: (petId: string) => ["custody", "availability", petId] as const,
 };
 
 // ─── Hook ────────────────────────────────────────────────────────────────────

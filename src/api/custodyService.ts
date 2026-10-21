@@ -4,8 +4,10 @@ import type { CustodyDetails, AdoptionStatus } from "../types/adoption";
 import type { CustodyArrangement, CustodyStatus } from "../features/custody/types";
 import {
   custodyArrangementSchema,
+  custodyAvailabilitySchema,
   custodyListResponseSchema,
   custodyRequestSchema,
+  type CustodyAvailability,
   type CustodyListResponse,
   type CustodyRequest,
 } from "../features/custody/schemas/custodySchemas";
@@ -110,6 +112,30 @@ export const custodyService = {
       apiClient.get<unknown>(`/custody/${encodeURIComponent(id)}`),
     );
     return custodyArrangementSchema.parse(response);
+  },
+
+  /**
+   * GET /custody/availability — the days a pet cannot be placed in custody
+   * for (an existing arrangement already covers them).
+   *
+   * The dates come back as date-only strings so the client can hand them
+   * straight to the date range picker without re-interpreting them in a
+   * different time zone.
+   */
+  async getAvailability(
+    petId: string,
+    params: { startDate?: string; endDate?: string } = {},
+  ): Promise<CustodyAvailability> {
+    const searchParams = new URLSearchParams({ petId });
+
+    if (params.startDate) searchParams.append("startDate", params.startDate);
+    if (params.endDate) searchParams.append("endDate", params.endDate);
+
+    const response = await withCustodyErrors(() =>
+      apiClient.get<unknown>(`/custody/availability?${searchParams.toString()}`),
+    );
+
+    return custodyAvailabilitySchema.parse(response);
   },
 
   /**
